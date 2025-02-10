@@ -13,9 +13,6 @@ mongoose.connect(process.env.MONGODB_URL).then(() => {
   console.log("Connected to MongoDB");
 });
 
-app.get("/api/check",async(req, res)=>{
-  console.log("Backend is Running using check ");
-})
 
 app.use("/api/auth", require("./routes/auth"));
 
