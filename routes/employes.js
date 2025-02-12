@@ -3,7 +3,7 @@ const { verifyToken, checkRole } = require("../middleware/authentication");
 const multer = require('multer');
 const storage = multer.memoryStorage(); // Storing file in memory, you can use diskStorage if needed
 const express = require("express");
-const processCSVAndGenerateResulrCards = require("../utils/ResultGenerator");
+const processCSVAndGenerateReportCards = require("../utils/ResultGenerator");
 const router = express.Router();
 const path = require('path');
 
@@ -113,13 +113,16 @@ const isFileValid = (file) => {
 // Route: Generate result cards
 router.post('/generateResult', upload.single('file'), async (req, res) => {
   try {
-    const file = req.file;
+    const file = req.body;
 
-    if (!isFileValid(file)) {
-      return res.status(400).json({ error: 'Invalid file format. Only CSV files are allowed.' });
-    }
+    console.log('File: qqq', file);
+    console.log('File qqq :', req.file);
 
-    processCSVAndGenerateResulrCards(file);
+    // if (!isFileValid(file)) {
+    //   return res.status(400).json({ error: 'Invalid file format. Only CSV files are allowed.' });
+    // }
+
+    await processCSVAndGenerateReportCards(file);
 
   } catch (error) {
     console.error('Error:', error);

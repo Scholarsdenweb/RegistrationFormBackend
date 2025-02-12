@@ -30,19 +30,11 @@ const isFileValid = (pdfFilePath) => {
 
 
 
-const 
-generateReportCardPDF = async (data, pdfFilePath) => {
-
-
-
+const generateReportCardPDF = async (data, pdfFilePath) => {
 
 console.log("Generating Report Card PDF...", pdfFilePath);
 
   // const subjects = data.subjects.filter((subject) => subject !== undefined);
-
-
-
-
 
   let browser = null;
   try {
@@ -934,54 +926,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
         // Extracted studentData
         const { names, numbers, totalMarks } = await extractData(studentData);
 
-        // Output names
-
-
-        // names.forEach(item => console.log(`${item.key}: ${item.value}`));
-
-
-
-        // Output numbers
-        // numbers.forEach(item => console.log(`${item.key} -> Number: ${item.number}, Value: ${item.value}`));
-
-
-
-        // numbers [
-        //   { key: 'Phy(10)', number: '10', value: '5' },
-        //   { key: 'Chem(10)', number: '10', value: '6' },
-        //   { key: 'Bio(10)', number: '10', value: '6' },
-        //   { key: 'Math(15)', number: '15', value: '13' },
-        //   { key: 'SST(15)', number: '15', value: '11' },
-        //   { key: 'MAT(50)', number: '50', value: '29' },
-        //   { key: 'Total(150)', number: '150', value: '70' }
-        // ]
-
-        // names [
-        //   { key: 'Rank', value: '1' },
-        //   { key: 'Class', value: '8th' },
-        //   { key: 'Roll No', value: '202508004' },
-        //   { key: 'Candidate Name', value: 'Sharanya Kulkarni' },
-        //   { key: 'Father Name', value: 'Mr. Guru Raj Kulkarni' },
-        //   { key: 'Phy Average', value: '5' },
-        //   { key: 'Phy_Highest Score', value: '7' },
-        //   { key: 'Phy_Subjectwise_Rank', value: '3' },
-        //   { key: 'Chem Average', value: '5' },
-        //   { key: 'Chem_Highest Score', value: '6' },
-        //   { key: 'Chem_Subjectwise_Rank', value: '1' },
-        //   { key: 'Bio Average', value: '4' },
-        //   { key: 'Bio_Highest Score', value: '6' },
-        //   { key: 'Bio_Subjectwise_Rank', value: '1' },
-        //   { key: 'Math Average', value: '9' },
-        //   { key: 'Math_Highest Score', value: '13' },
-        //   { key: 'Math_Subjectwise_Rank', value: '1' },
-        //   { key: 'SST Average', value: '8' },
-        //   { key: 'SST_Highest Score', value: '13' },
-        //   { key: 'SST_Subjectwise_Rank', value: '2' },
-        //   { key: 'MAT Average', value: '23' },
-        //   { key: 'MAT_Highest Score', value: '29' },
-        //   { key: 'MAT_Subjectwise_Rank', value: '1' }
-        // ]
-
+    
 
 
 
@@ -1082,5 +1027,5 @@ const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
 // processCSVAndGenerateReportCards(csvFilePath);
 
 
-module.export = processCSVAndGenerateReportCards;
+module.exports = processCSVAndGenerateReportCards;
  
