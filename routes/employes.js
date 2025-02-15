@@ -88,17 +88,24 @@ router.delete("/delete/:id", async (req, res) => {
 
 // Configure multer for file uploads
 const upload = multer({
-  dest: 'uploads/',
+  storage: multer.diskStorage({
+    destination: "uploads/",
+    filename: (req, file, cb) => {
+      cb(null, Date.now() + path.extname(file.originalname)); // Renaming file
+    },
+  }),
   fileFilter: (req, file, cb) => {
     const filetypes = /csv/;
     const mimetype = filetypes.test(file.mimetype);
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase());
+
     if (mimetype && extname) {
       return cb(null, true);
     }
-    cb(new Error('Only CSV files are allowed!'));
+    cb(new Error("Only CSV files are allowed!"));
   },
 });
+
 
 // Helper function to validate file
 const isFileValid = (file) => {
@@ -111,24 +118,77 @@ const isFileValid = (file) => {
 
 
 // Route: Generate result cards
-router.post('/generateResult', upload.single('file'), async (req, res) => {
+
+// app.post("/api/employees/generateResult", upload.single("csvFile"), (req, res) => {
+//   console.log("Uploaded File:", req.file);
+//   if (!req.file) {
+//     return res.status(400).json({ message: "No file uploaded!" });
+//   }
+//   res.json({ message: "File uploaded successfully!", file: req.file.filename });
+// });
+
+
+router.post("/generateResult", upload.single("csvFile"), async (req, res) => {
   try {
-    const file = req.body;
+    if (!req.file) {
+      return res.status(400).json({ error: "No file uploaded" });
+    }
 
-    console.log('File: qqq', file);
-    console.log('File qqq :', req.file);
+    console.log("Uploaded File:", req.file);
 
-    // if (!isFileValid(file)) {
-    //   return res.status(400).json({ error: 'Invalid file format. Only CSV files are allowed.' });
-    // }
+    // ✅ Pass the correct file path to the processing function
+    const filePath = req.file.path;
 
-    await processCSVAndGenerateReportCards(file);
+    await processCSVAndGenerateReportCards(filePath);
 
+    res.status(200).json({ message: "Result cards generated successfully" });
   } catch (error) {
-    console.error('Error:', error);
-    res.status(500).json({ error: 'Internal Server Error' });
+    console.error("Error:", error);
+    res.status(500).json({ error: "Internal Server Error" });
   }
 });
+
+// router.post('/generateResult', upload.single('csvFile'), async (req, res) => {
+//     console.log("Uploaded File:", req.file);
+
+//   try {
+//     if (!req.file) {
+//       return res.status(400).json({ error: 'No file uploaded' });
+//     }
+
+//     const filePath = req.file; // Correct way to get the file path
+
+//     console.log('Uploaded File:', req.file);
+
+//     await processCSVAndGenerateReportCards(filePath);
+
+//     res.status(200).json({ message: 'Result cards generated successfully' });
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
+
+
+// router.post('/generateResult', upload.single('file'), async (req, res) => {
+//   try {
+//     const file = req.body.path;
+
+//     console.log('File: qqq', file);
+//     console.log('File qqq :', req.body);
+
+//     // if (!isFileValid(file)) {
+//     //   return res.status(400).json({ error: 'Invalid file format. Only CSV files are allowed.' });
+//     // }
+
+//     await processCSVAndGenerateReportCards(file);
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ error: 'Internal Server Error' });
+//   }
+// });
 
 
 module.exports = router;

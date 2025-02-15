@@ -6,6 +6,7 @@ const csv = require("csv-parser");
 const cloudinary = require("cloudinary").v2;
 require("dotenv").config();
 const path = require('path');
+const Students = require("../models/Student");
 
 
 // Configure Cloudinary
@@ -32,7 +33,7 @@ const isFileValid = (pdfFilePath) => {
 
 const generateReportCardPDF = async (data, pdfFilePath) => {
 
-console.log("Generating Report Card PDF...", pdfFilePath);
+  console.log("Generating Report Card PDF...", pdfFilePath);
 
   // const subjects = data.subjects.filter((subject) => subject !== undefined);
 
@@ -855,54 +856,15 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
 
         // Prepare student data for report card
-
-
-
-
-        // console.log("Rank", student['Rank']);
-
-        const studentData = {
-          'Rank': '1',
-          'Class': '8th',
-          'Roll No': '202508004',
-          'Candidate Name': 'Sharanya Kulkarni',
-          'Father Name': 'Mr. Guru Raj Kulkarni',
-          'Phy(10)': '5',
-          'Phy Average': '5',
-          'Phy_Highest Score': '7',
-          'Phy_Subjectwise_Rank': '3',
-          'Chem(10)': '6',
-          'Chem Average': '5',
-          'Chem_Highest Score': '6',
-          'Chem_Subjectwise_Rank': '1',
-          'Bio(10)': '6',
-          'Bio Average': '4',
-          'Bio_Highest Score': '6',
-          'Bio_Subjectwise_Rank': '1',
-          'Math(15)': '13',
-          'Math Average': '9',
-          'Math_Highest Score': '13',
-          'Math_Subjectwise_Rank': '1',
-          'SST(15)': '11',
-          'SST Average': '8',
-          'SST_Highest Score': '13',
-          'SST_Subjectwise_Rank': '2',
-          'MAT(50)': '29',
-          'MAT Average': '23',
-          'MAT_Highest Score': '29',
-          'MAT_Subjectwise_Rank': '1',
-          'Total(150)': '70'
-        };
-
         // Function to extract names and numbers
-        function extractData(studentData) {
+        function extractData(student) {
           let names = [];
           let numbers = [];
           let totalMarks = [];
 
           // Iterate through the data object
-          for (let key in studentData) {
-            let value = studentData[key];
+          for (let key in student) {
+            let value = student[key];
 
             // Check if the key contains a number in parentheses (indicating marks/subjects)
             const match = key.match(/\((\d+)\)/);
@@ -924,9 +886,9 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
         }
 
         // Extracted studentData
-        const { names, numbers, totalMarks } = await extractData(studentData);
+        const { names, numbers, totalMarks } = await extractData(student);
 
-    
+
 
 
 
@@ -971,14 +933,6 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
 
 
-
-
-
-
-
-
-
-
         try {
 
 
@@ -987,7 +941,9 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
           await generateReportCardPDF(data, pdfFilePath);
 
 
-console.log(`Generated PDF check pdfFilePath`, pdfFilePath);
+          console.log(`Generated PDF check pdfFilePath`, pdfFilePath);
+        
+
           // Ensure that the file is valid before uploading
           if (isFileValid(pdfFilePath)) {
             try {
@@ -995,6 +951,18 @@ console.log(`Generated PDF check pdfFilePath`, pdfFilePath);
 
               const url = await uploadToCloudinary(pdfFilePath, student["Roll No"]);
               console.log("Report card uploaded to Cloudinary:", url);
+
+
+              console.log("Student role number:", student["Roll No"]);
+
+
+              // Update the student document with the Cloudinary URL
+              const updatedStudent = await Students.updateOne({ "StudentsId": student["Roll No"] }, { $set: { "result": url } });
+
+
+              console.log("updatedStudent", updatedStudent);
+
+
             } catch (error) {
               console.error(`Error uploading report card for Roll Number: ${student["Roll No"]}`, error);
             }
@@ -1028,4 +996,3 @@ const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
 
 
 module.exports = processCSVAndGenerateReportCards;
- 
