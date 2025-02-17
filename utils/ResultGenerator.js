@@ -68,7 +68,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
 
     };
 
-    const logoBase64 = getImageAsBase64("../assets/scholarsden.png");
+    const logoBase64 = getImageAsBase64("../assets/SDATLogo.png");
     const scholarsDenBase64 = getImageAsBase64("../assets/scholarsden.png");
     const callIconBase64 = getImageAsBase64("../assets/callIcon.png");
     const websiteIconBase64 = getImageAsBase64("../assets/website.png");
@@ -430,7 +430,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
           </div>
           <div class="brand-logo">
             <img src=${scholarsDenBase64} alt="Logo" />
-            <img src=${scholarsDenBase64} alt="Logo" />
+            
           </div>
         </div>
     
@@ -438,7 +438,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
         <div class="student-details">
           <div class="inner-container">
               <div class="line-text">
-                REPORT CARD 2024
+                REPORT CARD 2025
               </div>
            <div class="student-info-container">
               <div class="student-info">
@@ -493,7 +493,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
               </div>
               <div class="headingAndGraph">
            <h4>
-             Subjectwise Breakup of Full Marks
+             Subjectwise Breakup of Obtained Marks
            </h4>
               <div class="graph-container-pie">
                 <canvas id="obtainedMarksChart"></canvas>
@@ -505,7 +505,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     
                <div class="headingAndGraph">
                 <h4>
-                  Subjectwise Breakup of Full Marks
+                  Subjectwise Comparison
                 </h4>
     
     
@@ -516,7 +516,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     
                  <div class="headingAndGraph">
                 <h4>
-                  Subjectwise Breakup of Full Marks
+                  Subjectwise Rank
                 </h4>
               <div class="graph-container">
                 <canvas id="rankChart"></canvas>
@@ -990,7 +990,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 };
 
 // Run the script
-const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
+// const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
 // const csvFilePath = "./Jatin.csv"; // Path to your CSV file
 // processCSVAndGenerateReportCards(csvFilePath);
 

@@ -66,7 +66,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
       <style>
         body {
           margin: 0;
-          font-family: "Futura-MediumItalic", sans-serif;
+          font-family: Arial, sans-serif;
           background-color: #f7f7f7;
         }
         .admit-card {
