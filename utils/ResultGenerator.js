@@ -968,7 +968,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
             }
           } else {
             console.log(`Generated PDF for ${student["Roll No"]} is empty or invalid.`);
-          }
+           }
 
           // Optionally, delete the local file after upload
         } catch (error) {
