@@ -913,7 +913,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
         let data = {
           studentFirstName: student['Candidate Name']?.split(" ")[0],
-          // studentLastName: student['Candidate Name'].split(" ").length > 1 ? student['Candidate Name']?.split(" ")[1] : "" ,
+          studentLastName: student['Candidate Name'].split(" ").length > 1 ? student['Candidate Name']?.split(" ")[1] : "" ,
           Registration: student['Roll No'],
           Rank: student['Rank'],
           Scholarship: student.Scholarship,

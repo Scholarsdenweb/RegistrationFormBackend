@@ -8,6 +8,11 @@ const router = express.Router();
 const path = require('path');
 
 
+const fs = require('fs');
+const axios = require('axios');
+const archiver = require('archiver');
+const Students = require("../models/Student");
+
 // Initialize express app
 
 
@@ -189,6 +194,258 @@ router.post("/generateResult", upload.single("csvFile"), async (req, res) => {
 //     res.status(500).json({ error: 'Internal Server Error' });
 //   }
 // });
+
+
+
+
+
+
+
+// async function downloadFiles() {
+//     try {
+
+//       const students = await Students.find({ result: { $exists: true, $ne: null } }); 
+
+//         // const students = await Students.find(); // Fetch all result URLs
+//         if (students.length === 0) {
+//             console.log("No results found.");
+//             return;
+//         }
+
+//         const downloadFolder = path.join(__dirname, 'downloads');
+//         if (!fs.existsSync(downloadFolder)) {
+//             fs.mkdirSync(downloadFolder);
+//         }
+
+//         // Download all PDFs
+//         for (const student of students) {
+
+//           console.log("student", student);
+//             const fileUrl = student.result;
+//             const fileName = path.basename(fileUrl);
+//             const filePath = path.join(downloadFolder, fileName);
+
+//             const response = await axios({
+//                 method: 'GET',
+//                 url: fileUrl,
+//                 responseType: 'stream',
+//             });
+
+//             const writer = fs.createWriteStream(filePath);
+//             response.data.pipe(writer);
+
+//             await new Promise((resolve, reject) => {
+//                 writer.on('finish', resolve);
+//                 writer.on('error', reject);
+//             });
+
+//             console.log(`Downloaded: ${fileName}`);
+//         }
+
+//         // Create ZIP archive
+//         const zipFilePath = path.join(__dirname, 'student_results.zip');
+//         const output = fs.createWriteStream(zipFilePath);
+//         const archive = archiver('zip', { zlib: { level: 9 } });
+
+//         output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+//         archive.on('error', (err) => console.error('Archive error:', err));
+
+//         archive.pipe(output);
+//         archive.directory(downloadFolder, false);
+//         await archive.finalize();
+
+//     } catch (error) {
+//         console.error('Error:', error);
+//     } 
+// }
+
+// downloadFiles();
+
+
+const inquirer = require('inquirer');
+
+
+
+
+// async function getSaveLocation() {
+//     const { savePath } = await inquirer.prompt([
+//         {
+//             type: 'input',
+//             name: 'savePath',
+//             message: 'Enter the directory where you want to save the ZIP file:',
+//             default: path.join(__dirname, 'student_results.zip'), // Default location
+//             validate: (input) => fs.existsSync(path.dirname(input)) ? true : 'Invalid directory path!',
+//         }
+//     ]);
+//     return savePath;
+// }
+
+
+
+// async function downloadFiles() {
+//     try {
+//         const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
+//         if (students.length === 0) {
+//             console.log("No results found.");
+//             return;
+//         }
+
+//         const downloadFolder = path.join(__dirname, 'downloads');
+//         if (!fs.existsSync(downloadFolder)) {
+//             fs.mkdirSync(downloadFolder);
+//         }
+
+//         for (const student of students) {
+//             const fileUrl = student.result;
+//             const fileName = path.basename(fileUrl);
+//             const filePath = path.join(downloadFolder, fileName);
+
+//             const response = await axios({
+//                 method: 'GET',
+//                 url: fileUrl,
+//                 responseType: 'stream',
+//             });
+
+//             const writer = fs.createWriteStream(filePath);
+//             response.data.pipe(writer);
+
+//             await new Promise((resolve, reject) => {
+//                 writer.on('finish', resolve);
+//                 writer.on('error', reject);
+//             });
+
+//             console.log(`Downloaded: ${fileName}`);
+//         }
+
+//         const zipFilePath = await getSaveLocation();
+//         const output = fs.createWriteStream(zipFilePath);
+//         const archive = archiver('zip', { zlib: { level: 9 } });
+
+//         output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+//         archive.on('error', (err) => console.error('Archive error:', err));
+
+//         archive.pipe(output);
+//         archive.directory(downloadFolder, false);
+//         await archive.finalize();
+
+//     } catch (error) {
+//         console.error('Error:', error);
+//     } 
+// }
+
+// downloadFiles();
+
+
+
+
+
+
+
+
+
+
+// Create a folder to store downloadable files
+const PUBLIC_DIR = path.join(__dirname, 'public');
+if (!fs.existsSync(PUBLIC_DIR)) {
+    fs.mkdirSync(PUBLIC_DIR);
+}
+
+// API to generate and serve the ZIP file
+router.get('/generate-zip', async (req, res) => {
+    try {
+        const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
+        if (students.length === 0) {
+            return res.status(404).json({ message: "No results found." });
+        }
+
+        const downloadFolder = path.join(__dirname, 'downloads');
+        if (!fs.existsSync(downloadFolder)) {
+            fs.mkdirSync(downloadFolder);
+        }
+
+        // Download all PDFs
+        for (const student of students) {
+            const fileUrl = student.result;
+            const fileName = path.basename(fileUrl);
+            const filePath = path.join(downloadFolder, fileName);
+
+            const response = await axios({
+                method: 'GET',
+                url: fileUrl,
+                responseType: 'stream',
+            });
+
+            const writer = fs.createWriteStream(filePath);
+            response.data.pipe(writer);
+
+            await new Promise((resolve, reject) => {
+                writer.on('finish', resolve);
+                writer.on('error', reject);
+            });
+
+            console.log(`Downloaded: ${fileName}`);
+        }
+
+        // Create ZIP archive
+        const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+        const output = fs.createWriteStream(zipFilePath);
+        const archive = archiver('zip', { zlib: { level: 9 } });
+
+        output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+        archive.on('error', (err) => console.error('Archive error:', err));
+
+        archive.pipe(output);
+        archive.directory(downloadFolder, false);
+        await archive.finalize();
+    
+        if (!fs.existsSync(zipFilePath)) {
+            return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+        }
+      
+        res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
+        // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
+      
+        const fileStream = fs.createReadStream(zipFilePath);
+        fileStream.pipe(res);
+
+        // res.json({ message: "ZIP file created successfully.", downloadUrl: `/download-zip` });
+
+    } catch (error) {
+        console.error('Error:', error);
+        res.status(500).json({ message: "Error generating ZIP file." });
+    }
+});
+
+// API to serve the ZIP file for download
+// router.get('/download-zip', (req, res) => {
+//     const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+//     if (!fs.existsSync(zipFilePath)) {
+//         return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+//     }
+    
+//     res.download(zipFilePath, 'student_results.zip');
+// });
+
+
+
+router.get('/download-zip', (req, res) => {
+  const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+
+  console.log("zipFilePath",zipFilePath);
+  
+  if (!fs.existsSync(zipFilePath)) {
+      return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+  }
+
+  res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
+  // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
+
+  const fileStream = fs.createReadStream(zipFilePath);
+  fileStream.pipe(res);
+});
+
+
+
 
 
 module.exports = router;
