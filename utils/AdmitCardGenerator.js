@@ -253,10 +253,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
     await page.pdf({ path: filePath, printBackground: true });
   } catch (error) {
     console.log({ error });
-  } finally {
-    await browser.close();
-
-  }
+  } 
 };
 
 
