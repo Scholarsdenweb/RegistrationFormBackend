@@ -836,6 +836,9 @@ const uploadToCloudinary = async (pdfFilePath, rollNumber) => {
 
 // Function to process CSV data and generate report cards
 const processCSVAndGenerateReportCards = async (csvFilePath) => {
+
+
+  console.log("Processing CSV and generating report cards...");
   const students = [];
 
   // Read CSV file and parse data
@@ -905,9 +908,12 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
         })
 
 
+
+
+
         let data = {
-          studentFirstName: student['Candidate Name'].split(" ")[0],
-          studentLastName: student['Candidate Name'].split(" ")[1],
+          studentFirstName: student['Candidate Name']?.split(" ")[0],
+          // studentLastName: student['Candidate Name'].split(" ").length > 1 ? student['Candidate Name']?.split(" ")[1] : "" ,
           Registration: student['Roll No'],
           Rank: student['Rank'],
           Scholarship: student.Scholarship,
@@ -990,6 +996,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 };
 
 // Run the script
+// const csvFilePath = "./students.csv"; // Path to your CSV file
 // const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
 // const csvFilePath = "./Jatin.csv"; // Path to your CSV file
 // processCSVAndGenerateReportCards(csvFilePath);
