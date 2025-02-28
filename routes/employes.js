@@ -20,72 +20,72 @@ const cloudinary = require('cloudinary').v2;
 require('dotenv').config();
 
 router.get("/", verifyToken("hr"), checkRole(["hr"]), async (req, res) => {
-    const employees = await Employee.find().select("-password");
-    res.send(employees);
+  const employees = await Employee.find().select("-password");
+  res.send(employees);
 });
 router.post("/addEmployee", verifyToken, checkRole(["hr"]), async (req, res) => {
-    const { name, email, role, password } = req.body;
-    const employee = await Employee.findOne({ email: email });
+  const { name, email, role, password } = req.body;
+  const employee = await Employee.findOne({ email: email });
 
-    if (employee) {
-        return res.status(400).send("Employee already exists");
+  if (employee) {
+    return res.status(400).send("Employee already exists");
+  }
+
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const newEmployee = await new Employee({
+    name,
+    email,
+    role,
+    password: hashedPassword
+  });
+
+  const token = jwt.sign({ _id: newEmployee._id, role: newEmployee.role }, JWT_SECRET);
+
+  res.status(200).send({
+    token, employee: {
+      name: newEmployee.name,
+      email: newEmployee.email,
+      role: newEmployee.role,
+      task: newEmployee.task,
+      profile: newEmployee.profile
     }
-
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(password, salt);
-
-    const newEmployee = await new Employee({
-        name,
-        email,
-        role,
-        password: hashedPassword
-    });
-
-    const token = jwt.sign({ _id: newEmployee._id, role: newEmployee.role }, JWT_SECRET);
-
-    res.status(200).send({
-        token, employee: {
-            name: newEmployee.name,
-            email: newEmployee.email,
-            role: newEmployee.role,
-            task: newEmployee.task,
-            profile: newEmployee.profile
-        }
-    });
+  });
 
 
 })
 
 
 router.patch("/update/:id", async (req, res) => {
-    const { id } = req.params;
-    const { name, email, role, password } = req.body;
-    console.log("ID", id)
-    const employee = await Employee.findById(id);
+  const { id } = req.params;
+  const { name, email, role, password } = req.body;
+  console.log("ID", id)
+  const employee = await Employee.findById(id);
 
-    if (!employee) {
-        return res.status(400).send("Employee not found");
-    }
+  if (!employee) {
+    return res.status(400).send("Employee not found");
+  }
 
-    employee.name = name ? name : employee.name;
-    employee.email = email ? email : employee.email;
-    employee.role = role ? role : employee.role;
-    employee.password = password ? password : employee.password;
+  employee.name = name ? name : employee.name;
+  employee.email = email ? email : employee.email;
+  employee.role = role ? role : employee.role;
+  employee.password = password ? password : employee.password;
 
-    const updatedEmployee = await employee.save();
+  const updatedEmployee = await employee.save();
 
-    res.send(updatedEmployee);
+  res.send(updatedEmployee);
 })
 
 router.delete("/delete/:id", async (req, res) => {
-    const { id } = req.params;
-    const employee = await Employee.findByIdAndDelete(id);
+  const { id } = req.params;
+  const employee = await Employee.findByIdAndDelete(id);
 
-    if (!employee) {
-        return res.status(400).send("Employee not found");
-    }
+  if (!employee) {
+    return res.status(400).send("Employee not found");
+  }
 
-    res.send({ name: employee.name, email: employee.email });
+  res.send({ name: employee.name, email: employee.email });
 })
 
 // Configure Cloudinary
@@ -263,6 +263,8 @@ router.post("/generateResult", upload.single("csvFile"), async (req, res) => {
 
 
 const inquirer = require('inquirer');
+const BasicDetails = require("../models/form/BasicDetails");
+const ExamDate = require("../models/ExamDate");
 
 
 
@@ -347,73 +349,79 @@ const inquirer = require('inquirer');
 // Create a folder to store downloadable files
 const PUBLIC_DIR = path.join(__dirname, 'public');
 if (!fs.existsSync(PUBLIC_DIR)) {
-    fs.mkdirSync(PUBLIC_DIR);
+  fs.mkdirSync(PUBLIC_DIR);
 }
 
 // API to generate and serve the ZIP file
-router.get('/generate-zip', async (req, res) => {
-    try {
-        const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
-        if (students.length === 0) {
-            return res.status(404).json({ message: "No results found." });
-        }
+router.post('/generate-zip', async (req, res) => {
 
-        const downloadFolder = path.join(__dirname, 'downloads');
-        if (!fs.existsSync(downloadFolder)) {
-            fs.mkdirSync(downloadFolder);
-        }
 
-        // Download all PDFs
-        for (const student of students) {
-            const fileUrl = student.result;
-            const fileName = path.basename(fileUrl);
-            const filePath = path.join(downloadFolder, fileName);
 
-            const response = await axios({
-                method: 'GET',
-                url: fileUrl,
-                responseType: 'stream',
-            });
+  try {
 
-            const writer = fs.createWriteStream(filePath);
-            response.data.pipe(writer);
-
-            await new Promise((resolve, reject) => {
-                writer.on('finish', resolve);
-                writer.on('error', reject);
-            });
-
-            console.log(`Downloaded: ${fileName}`);
-        }
-
-        // Create ZIP archive
-        const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
-        const output = fs.createWriteStream(zipFilePath);
-        const archive = archiver('zip', { zlib: { level: 9 } });
-
-        output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
-        archive.on('error', (err) => console.error('Archive error:', err));
-
-        archive.pipe(output);
-        archive.directory(downloadFolder, false);
-        await archive.finalize();
-    
-        if (!fs.existsSync(zipFilePath)) {
-            return res.status(404).json({ message: "ZIP file not found. Generate it first." });
-        }
-      
-        res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
-        // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
-      
-        const fileStream = fs.createReadStream(zipFilePath);
-        fileStream.pipe(res);
-
-        // res.json({ message: "ZIP file created successfully.", downloadUrl: `/download-zip` });
-
-    } catch (error) {
-        console.error('Error:', error);
-        res.status(500).json({ message: "Error generating ZIP file." });
+    const allstudentAccoundingToDate = await BasicDetails.find({ examDate: "02/20/2025" }).select("student_id ");
+    console.log("allstudentAccoundingToDate", allstudentAccoundingToDate);
+    const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
+    if (students.length === 0) {
+      return res.status(404).json({ message: "No results found." });
     }
+
+    const downloadFolder = path.join(__dirname, 'downloads');
+    if (!fs.existsSync(downloadFolder)) {
+      fs.mkdirSync(downloadFolder);
+    }
+
+    // Download all PDFs
+    for (const student of students) {
+      const fileUrl = student.result;
+      const fileName = path.basename(fileUrl);
+      const filePath = path.join(downloadFolder, fileName);
+
+      const response = await axios({
+        method: 'GET',
+        url: fileUrl,
+        responseType: 'stream',
+      });
+
+      const writer = fs.createWriteStream(filePath);
+      response.data.pipe(writer);
+
+      await new Promise((resolve, reject) => {
+        writer.on('finish', resolve);
+        writer.on('error', reject);
+      });
+
+      console.log(`Downloaded: ${fileName}`);
+    }
+
+    // Create ZIP archive
+    const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+    const output = fs.createWriteStream(zipFilePath);
+    const archive = archiver('zip', { zlib: { level: 9 } });
+
+    output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+    archive.on('error', (err) => console.error('Archive error:', err));
+
+    archive.pipe(output);
+    archive.directory(downloadFolder, false);
+    await archive.finalize();
+
+    if (!fs.existsSync(zipFilePath)) {
+      return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+    }
+
+    res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
+    // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
+
+    const fileStream = fs.createReadStream(zipFilePath);
+    fileStream.pipe(res);
+
+    // res.json({ message: "ZIP file created successfully.", downloadUrl: `/download-zip` });
+
+  } catch (error) {
+    console.error('Error:', error);
+    res.status(500).json({ message: "Error generating ZIP file." });
+  }
 });
 
 // API to serve the ZIP file for download
@@ -422,7 +430,7 @@ router.get('/generate-zip', async (req, res) => {
 //     if (!fs.existsSync(zipFilePath)) {
 //         return res.status(404).json({ message: "ZIP file not found. Generate it first." });
 //     }
-    
+
 //     res.download(zipFilePath, 'student_results.zip');
 // });
 
@@ -431,10 +439,10 @@ router.get('/generate-zip', async (req, res) => {
 router.get('/download-zip', (req, res) => {
   const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
 
-  console.log("zipFilePath",zipFilePath);
-  
+  console.log("zipFilePath", zipFilePath);
+
   if (!fs.existsSync(zipFilePath)) {
-      return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+    return res.status(404).json({ message: "ZIP file not found. Generate it first." });
   }
 
   res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
@@ -445,6 +453,62 @@ router.get('/download-zip', (req, res) => {
 });
 
 
+
+router.post("/addExamDate", async (req, res) => {
+  const { examDate } = req.body;
+
+  console.log("examDate", examDate);
+
+
+  try {
+
+    const existingExamDate = await ExamDate.findOne({ examDate });
+    if (existingExamDate) {
+      return res.status(401).json({ message: "exam date already exists" });
+    }
+
+  
+
+    // const newStudent = new Student({
+    //   name,
+    //   email,
+    //   role,
+    //   phone,
+    //   password: hashedPassword,
+    // });
+    // await newStudent.save();
+
+    const newExamDate = new ExamDate({ examDate });
+    await newExamDate.save();
+    res.status(200).json({ message: "exam date added successfully" });
+  } catch (error) {
+    console.log("error", error)
+    res.status(500).json({ error: "Internal Server Error" })
+  }
+})
+
+
+
+router.get("/getAllDates", async (req, res) => {
+  try {
+    const getAllExamDate = await ExamDate.find();
+    res.status(200).json(getAllExamDate);
+
+
+  } catch (error) {
+    console.log("error", error)
+  }
+}
+
+)
+
+
+router.patch("/editDate", async (req, res) =>{
+  const { _id, changedDate} = req.body
+
+console.log("_id", _id);
+console.log("changedDate", changedDate);
+})
 
 
 
