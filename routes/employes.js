@@ -353,17 +353,121 @@ if (!fs.existsSync(PUBLIC_DIR)) {
 }
 
 // API to generate and serve the ZIP file
+
+
+
+
+// router.post('/generate-zip', async (req, res) => {
+//   try {
+//     const { examDate } = req.body; // Pass examDate in request body
+//     if (!examDate) {
+//       return res.status(400).json({ message: "Exam date is required." });
+//     }
+
+//     // Fetch student IDs who gave the exam on the given date
+//     const studentsWithExamDate = await BasicDetails.find({ examDate }).select("student_id");
+
+//     if (!studentsWithExamDate.length) {
+//       return res.status(404).json({ message: "No students found for the given exam date." });
+//     }
+
+//     // Extract student IDs
+//     const studentIds = studentsWithExamDate.map(student => student.student_id);
+
+//     // Fetch students who have results and match the student IDs
+//     const students = await Students.find({ 
+//       _id: { $in: studentIds }, 
+//       result: { $exists: true, $ne: null, $ne: "" } 
+//     });
+
+//     if (!students.length) {
+//       return res.status(404).json({ message: "No results found for the given exam date." });
+//     }
+
+//     const downloadFolder = path.join(__dirname, 'downloads');
+//     if (!fs.existsSync(downloadFolder)) {
+//       fs.mkdirSync(downloadFolder);
+//     }
+
+//     // Download all PDFs
+//     for (const student of students) {
+//       const fileUrl = student.result;
+//       const fileName = path.basename(fileUrl);
+//       const filePath = path.join(downloadFolder, fileName);
+
+//       const response = await axios({
+//         method: 'GET',
+//         url: fileUrl,
+//         responseType: 'stream',
+//       });
+
+//       const writer = fs.createWriteStream(filePath);
+//       response.data.pipe(writer);
+
+//       await new Promise((resolve, reject) => {
+//         writer.on('finish', resolve);
+//         writer.on('error', reject);
+//       });
+
+//       console.log(`Downloaded: ${fileName}`);
+//     }
+
+//     // Create ZIP archive
+//     const zipFilePath = path.join(__dirname, 'public', 'student_results.zip');
+//     const output = fs.createWriteStream(zipFilePath);
+//     const archive = archiver('zip', { zlib: { level: 9 } });
+
+//     output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+//     archive.on('error', (err) => console.error('Archive error:', err));
+
+//     archive.pipe(output);
+//     archive.directory(downloadFolder, false);
+//     await archive.finalize();
+
+//     if (!fs.existsSync(zipFilePath)) {
+//       return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+//     }
+
+//     res.setHeader('Content-Type', 'application/zip');
+//     const fileStream = fs.createReadStream(zipFilePath);
+//     fileStream.pipe(res);
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ message: "Error generating ZIP file." });
+//   }
+// });
+
+
+
+
+
+
+// Adjust import paths
+
 router.post('/generate-zip', async (req, res) => {
-
-
-
   try {
+    const { date : examDate } = req.body;
 
-    const allstudentAccoundingToDate = await BasicDetails.find({ examDate: "02/20/2025" }).select("student_id ");
-    console.log("allstudentAccoundingToDate", allstudentAccoundingToDate);
-    const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
+
+    console.log("examDate", examDate);
+    // const examDate  = "15/02/2025";
+    if (!examDate) return res.status(400).json({ message: "Exam date is required." });
+
+    // Fetch student IDs in bulk
+    const studentIds = await BasicDetails.find({ examDate }).distinct("student_id");
+    if (studentIds.length === 0) {
+      return res.status(404).json({ message: "No students found for the given exam date." });
+    }
+
+    // Fetch students who have results using bulk query
+    const students = await Students.find({
+      _id: { $in: studentIds },
+      result: { $exists: true, $ne: null, $ne: "" }
+    }).select("result");
+
     if (students.length === 0) {
-      return res.status(404).json({ message: "No results found." });
+      return res.status(404).json({ message: "No results found for the given exam date." });
     }
 
     const downloadFolder = path.join(__dirname, 'downloads');
@@ -371,36 +475,39 @@ router.post('/generate-zip', async (req, res) => {
       fs.mkdirSync(downloadFolder);
     }
 
-    // Download all PDFs
-    for (const student of students) {
-      const fileUrl = student.result;
-      const fileName = path.basename(fileUrl);
-      const filePath = path.join(downloadFolder, fileName);
+    // Parallel downloads
+    await Promise.all(students.map(async (student) => {
+      try {
+        const fileUrl = student.result;
+        const fileName = path.basename(fileUrl);
+        const filePath = path.join(downloadFolder, fileName);
 
-      const response = await axios({
-        method: 'GET',
-        url: fileUrl,
-        responseType: 'stream',
-      });
+        const response = await axios({
+          method: 'GET',
+          url: fileUrl,
+          responseType: 'stream',
+        });
 
-      const writer = fs.createWriteStream(filePath);
-      response.data.pipe(writer);
+        const writer = fs.createWriteStream(filePath);
+        response.data.pipe(writer);
 
-      await new Promise((resolve, reject) => {
-        writer.on('finish', resolve);
-        writer.on('error', reject);
-      });
+        return new Promise((resolve, reject) => {
+          writer.on('finish', resolve);
+          writer.on('error', reject);
+        });
 
-      console.log(`Downloaded: ${fileName}`);
-    }
+      } catch (error) {
+        console.error(`Failed to download file for student: ${student._id}`, error);
+      }
+    }));
 
     // Create ZIP archive
-    const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+    const zipFilePath = path.join(__dirname, 'public', 'student_results.zip');
     const output = fs.createWriteStream(zipFilePath);
     const archive = archiver('zip', { zlib: { level: 9 } });
 
-    output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
     archive.on('error', (err) => console.error('Archive error:', err));
+    output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
 
     archive.pipe(output);
     archive.directory(downloadFolder, false);
@@ -410,19 +517,89 @@ router.post('/generate-zip', async (req, res) => {
       return res.status(404).json({ message: "ZIP file not found. Generate it first." });
     }
 
-    res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
-    // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
-
+    res.setHeader('Content-Type', 'application/zip');
     const fileStream = fs.createReadStream(zipFilePath);
     fileStream.pipe(res);
-
-    // res.json({ message: "ZIP file created successfully.", downloadUrl: `/download-zip` });
 
   } catch (error) {
     console.error('Error:', error);
     res.status(500).json({ message: "Error generating ZIP file." });
   }
 });
+
+
+
+
+
+
+
+// router.post('/generate-zip', async (req, res) => {
+
+//   try {
+//     const allstudentAccoundingToDate = await BasicDetails.find({ examDate: "02/20/2025" }).select("student_id ");
+//     console.log("allstudentAccoundingToDate", allstudentAccoundingToDate);
+//     const students = await Students.find({ result: { $exists: true, $ne: null, $ne: "" } });
+//     if (students.length === 0) {
+//       return res.status(404).json({ message: "No results found." });
+//     }
+
+//     const downloadFolder = path.join(__dirname, 'downloads');
+//     if (!fs.existsSync(downloadFolder)) {
+//       fs.mkdirSync(downloadFolder);
+//     }
+
+//     // Download all PDFs
+//     for (const student of students) {
+//       const fileUrl = student.result;
+//       const fileName = path.basename(fileUrl);
+//       const filePath = path.join(downloadFolder, fileName);
+
+//       const response = await axios({
+//         method: 'GET',
+//         url: fileUrl,
+//         responseType: 'stream',
+//       });
+
+//       const writer = fs.createWriteStream(filePath);
+//       response.data.pipe(writer);
+
+//       await new Promise((resolve, reject) => {
+//         writer.on('finish', resolve);
+//         writer.on('error', reject);
+//       });
+
+//       console.log(`Downloaded: ${fileName}`);
+//     }
+
+//     // Create ZIP archive
+//     const zipFilePath = path.join(PUBLIC_DIR, 'student_results.zip');
+//     const output = fs.createWriteStream(zipFilePath);
+//     const archive = archiver('zip', { zlib: { level: 9 } });
+
+//     output.on('close', () => console.log(`ZIP file created: ${zipFilePath}`));
+//     archive.on('error', (err) => console.error('Archive error:', err));
+
+//     archive.pipe(output);
+//     archive.directory(downloadFolder, false);
+//     await archive.finalize();
+
+//     if (!fs.existsSync(zipFilePath)) {
+//       return res.status(404).json({ message: "ZIP file not found. Generate it first." });
+//     }
+
+//     res.setHeader('Content-Type', 'application/zip'); // Ensures it's treated as a file
+//     // res.setHeader('Content-Disposition', 'attachment; filename=student_results.zip');
+
+//     const fileStream = fs.createReadStream(zipFilePath);
+//     fileStream.pipe(res);
+
+//     // res.json({ message: "ZIP file created successfully.", downloadUrl: `/download-zip` });
+
+//   } catch (error) {
+//     console.error('Error:', error);
+//     res.status(500).json({ message: "Error generating ZIP file." });
+//   }
+// });
 
 // API to serve the ZIP file for download
 // router.get('/download-zip', (req, res) => {
@@ -491,7 +668,7 @@ router.post("/addExamDate", async (req, res) => {
 
 router.get("/getAllDates", async (req, res) => {
   try {
-    const getAllExamDate = await ExamDate.find();
+    const getAllExamDate = await ExamDate.find().sort({ examDate: 1 });
     res.status(200).json(getAllExamDate);
 
 
@@ -509,6 +686,23 @@ router.patch("/editDate", async (req, res) =>{
 console.log("_id", _id);
 console.log("changedDate", changedDate);
 })
+
+
+router.delete("/deleteDate/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const deletedDate = await ExamDate.findByIdAndDelete(id);
+    if (!deletedDate) {
+      return res.status(404).json({ message: "Date not found" });
+    }
+    res.status(200).json({ message: "Date deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting date:", error);
+    res.status(500).json({ message: "Error deleting date" });
+  }
+});
+
 
 
 

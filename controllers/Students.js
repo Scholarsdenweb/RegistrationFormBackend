@@ -6,7 +6,6 @@ const BatchRelatedDetails = require("../models/form/BatchRelatedDetails");
 const EducationalDetails = require("../models/form/EducationalDetails");
 const Payment = require("../models/form/Payment");
 const FamilyDetails = require("../models/form/FamilyDetails");
-const { reservationsUrl } = require("twilio/lib/jwt/taskrouter/util");
 const { uploadOnCloudinary } = require("../utils/cloudinary");
 
 
