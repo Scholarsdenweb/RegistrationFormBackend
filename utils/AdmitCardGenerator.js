@@ -63,6 +63,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
   <!DOCTYPE html>
   <html>
     <head>
+    //  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap" rel="stylesheet">
       <style>
         body {
           margin: 0;
@@ -77,7 +78,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
           color: white;
           border: 2px solid #000;
           box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-          font-family: "Arial", sans-serif;
+          font-family: Arial, sans-serif;
           font-weight: 100;
           letter-spacing: 1px;
         }
@@ -93,7 +94,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
         .admit-card .stream-section,
         .admit-card .class-section {
           display: flex;
-          font-style: oblique;
+          // font-style: oblique;
           gap: 20px;
           align-items: center;
         }
@@ -120,7 +121,7 @@ const generateAdmitCardPDF = async (data, filePath) => {
   
         .admit-card .details-section {
           margin-top: 20px;
-          font-style: oblique;
+          // font-style: oblique;
         }
   
         .admit-card .details-section label {
