@@ -38,9 +38,9 @@ studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
      'VII': "07",
      'VIII': "08",
      'IX': "09",
-     'X': 10,
-     'XI': 11,
-     'XII': 12,
+     'X': "10",
+     'XI': "11",
+     'XII': "12",
    };
  
    return romanNumerals[number];
@@ -59,6 +59,8 @@ studentsSchema.statics.allocateStudentsId = async function (classForAdmission) {
 // studentsSchema.index({ StudentsId: 1 });
 // studentsSchema.drop('StudentsId_1');
 studentsSchema.index({ StudentsId: 1 }, { unique: true, partialFilterExpression: { StudentsId: { $ne: null } } });
+
+
 
 
 // Create and Export the Students Model

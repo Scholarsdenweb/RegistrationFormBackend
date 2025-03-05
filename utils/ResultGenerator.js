@@ -33,9 +33,16 @@ const isFileValid = (pdfFilePath) => {
 
 const generateReportCardPDF = async (data, pdfFilePath) => {
 
+
+
+
   console.log("Generating Report Card PDF...", pdfFilePath);
 
   // const subjects = data.subjects.filter((subject) => subject !== undefined);
+
+
+
+
 
   let browser = null;
   try {
@@ -69,13 +76,16 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     };
 
     const logoBase64 = getImageAsBase64("../assets/SDATLogo.png");
-    const scholarsDenBase64 = getImageAsBase64("../assets/scholarsden.png");
+    const scholarsDenBase64 = getImageAsBase64("../assets/SDLogo.png");
     const callIconBase64 = getImageAsBase64("../assets/callIcon.png");
     const websiteIconBase64 = getImageAsBase64("../assets/website.png");
     const facebookIconBase64 = getImageAsBase64("../assets/facebook.png");
     const youtubeIconBase64 = getImageAsBase64("../assets/youtube.png");
     const twitterIconBase64 = getImageAsBase64("../assets/twitter.png");
     const socialIconBase64 = getImageAsBase64("../assets/social.png");
+    const VTSirImage = getImageAsBase64("../assets/VTSir.png");
+    const VT_Sir_Signature = getImageAsBase64("../assets/VT_Sir_Signature.png")
+
 
     const allSubjectName = await data.subjects.map((subject) => subject.name);
     const allSubjectMarks = await data.subjects.map((subject) => subject.obtained);
@@ -111,16 +121,22 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@100;300;400;700&display=swap" rel="stylesheet">
       <title>Report Card</title>
       <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
       <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-3d"></script>
+      
     
       <style>
         body {
-          font-family: Arial, sans-serif;
+          // font-family: Roboto, sans-serif;
           margin: 0;
           padding: 0;
           background-color: #f8f8f8;
+          
+    
+      font-family: "Roboto";
+
         }
     
         .hr {
@@ -133,7 +149,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
         .report-card {
           margin: auto;
           background-color: #c91717;
-          border: 3px solid #c91717;
+          // border: 3px solid #c91717;
           box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
           padding: 10px 20px 0px 20px;
           box-sizing: border-box;
@@ -143,9 +159,9 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
         display: flex;
         align-items: center;
         position: relative;
-        /* font-family: 'Courier New', Courier, monospace; */
+        
     
-        top: 13px;
+        top: 14px;
         /* justify-content: center; */
         color: #c91717;
         font-weight: bold;
@@ -162,14 +178,14 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     
         .inner-container {
           background-color: white;
-          padding: 5px 20px;
+          padding: 3px 20px;
         }
     
         .header {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 10px;
+          margin-bottom: 5px;
         }
         .student-info-container {
           display: flex;
@@ -215,11 +231,11 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
         }
     .brand-logo{
     display: flex;
-    gap: 20px;
+
     }
     
         .brand-logo img{
-          height: 100px;
+          width: 120px;
           /* display: inline;
           height: 100px; */
         }
@@ -244,7 +260,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
         .name{
           font-size: 28px;
           color: #c91717;
-          font-weight: 900;
+          font-weight: 500;
          
     
         }
@@ -312,7 +328,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
           border-bottom: 1px solid black;
           background-color: white;
           color: #c91717;
-          font-weight: 900;
+          font-weight: 700;
         }
     
         .graphs {
@@ -355,7 +371,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
     
     
         .graph-container-pie {
-          width: 70%;
+          width: 100%;
           height: 145px;
         }
         .graph-container {
@@ -416,167 +432,462 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
           letter-spacing: 0.1px;
           /* word-spacing: px; */
         }
+
+
+     
+
+
+
+.secondPage{
+
+  min-height: 297mm; /* Full A4 height */
+  border-top: 20px solid #c91717;
+  border-bottom: 20px solid #c91717;
+  padding: 20px;
+  box-sizing: border-box;
+  position: relative;
+  display:flex;
+  flex-direction: column;
+
+
+
+
+ background-color: white;
+      color: white;
+      font-size: 12px;
+      font-weight: 700;
+      // text-align: center;
+      
+
+}
+
+
+.secondPageLogo{
+display: flex;
+gap: 10px;
+
+
+}
+
+   .secondPageLogo img{
+          height: 120px;
+          /* display: inline;
+          height: 100px; */
+        }
+
+
+    .secondPageLogo {
+  
+   
+      // margin-right: 30px;
+      /* background-color: white; */
+      display: flex;
+      justify-content: end;
+    
+    }
+
+
+    .secondPagetextContainer {
+      display: flex;
+      flex-direction: column;
+      justify-content: end;
+      
+      width: 100%
+      margin-top: 100px;
+      margin-left: 200px;
+    }
+      .secondPagetextContainer span{
+      color: #c91717;
+      font-weight: 900;
+      font-size: 24px;
+ 
+
+      }
+
+    .scholarshipMessage{
+   
+      margin-left: 100px;
+    
+    }
+
+    .secondPagetextContainer p {
+      display: flex;
+      flex-direction: column;
+      
+      color: black;
+      text-align: start;
+      width: 90%;
+
+      font-weight: 500;
+      font-size: 12px;
+      letter-spacing: 1px;
+      word-spacing: 1px;
+      // line-height: 20px;
+    }
+
+
+    .secondPageFooter{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: 10;
+
+    height: 400px;
+    width: 100%;
+      display: flex;
+      flex-direction: row;
+     
+      justify-content: start;
+      align-items: center;
+      
+    }
+        .VTSirImage{
+          height: 400px;
+          /* display: inline;
+          height: 100px; */
+        }
+
+    .footerSignature{
+    color: black;
+    }
+    .footerSignature img{
+    height: 50px;
+    }
+      .VTSirName{
+      color: #c91717;
+      font-size: 16px;
+      
+      }
+
+    
+
+    
+
       </style>
     </head>
     <body>
-      <div class="report-card">
-        <!-- Header -->
-        <div class="header">
-          <div class="paperLogo">
-            <img class="logo" src=${logoBase64} alt="Logo" />
-            <div class="exam-date">
-              Examination Date<br><span class="yellow-text"> 20<sup>th</sup> October '24</span>
-            </div>
-          </div>
-          <div class="brand-logo">
-            <img src=${scholarsDenBase64} alt="Logo" />
-            
+       <div class="report-card">
+      <!-- Header -->
+      <div class="header">
+        <div class="paperLogo">
+          <img class="logo" src="${logoBase64}" alt="Logo" />
+          <div class="exam-date">
+            Examination Date<br /><span class="yellow-text">
+              20<sup>th</sup> October '24</span
+            >
           </div>
         </div>
-    
-        <!-- Student Details -->
-        <div class="student-details">
-          <div class="inner-container">
-              <div class="line-text">
-                REPORT CARD 2025
-              </div>
-           <div class="student-info-container">
-              <div class="student-info">
-                <p class="name"><span class="black-text-name">${data.studentFirstName}</span>  ${data.studentLastName}</p>
-                <p><b>Registration No.:</b> ${data.Registration}</p>
-                <p><b>Father's Name:</b>${data.Father}</p>
-                <p><b>Class:</b> ${data.Class}</p>
-                <p><b>Scholarship:</b> ${scholarship}% (Valid till 25th Nov '25)</p>
-                <p><b>Rank:</b> 1</p>
-                <p><b>Percentage:</b>${percentage}%</p>
-              </div>
-              <div class="student-photo">PHOTO NOT AVAILABLE</div>
+        <div class="brand-logo">
+          <img src="${scholarsDenBase64}" alt="Logo" />
+        </div>
+      </div>
+
+      <!-- Student Details -->
+      <div class="student-details">
+        <div class="inner-container">
+          <div class="line-text">REPORT CARD 2024</div>
+          <div class="student-info-container">
+            <div class="student-info">
+              <p class="name">
+                <span class="black-text-name">${data.studentFirstName.toUpperCase()}</span>
+                ${data.studentLastName.toUpperCase()}
+              </p>
+              <p><b>Registration No:</b> ${data.Registration}</p>
+              <p><b>Father's Name:</b> ${data.Father}</p>
+              <p><b>Class:</b> ${data.Class}</p>
+              <p>
+                <b>Scholarship:</b> ${scholarship}% (Valid till 25th Nov '25)
+              </p>
+              <p><b>Rank:</b> 1</p>
+              <p><b>Percentage: </b>${percentage}%</p>
             </div>
-    
-            <!-- Marks Table -->
-            <table class="marks-table">
-              <thead>
-                <tr>
-                  <th>Subject</th>
-                  <th>Marks Obtained</th>
-                  <th>Full Marks</th>
-                </tr>
-              </thead>
-              <tbody>
-               ${tableRows}
-                <tr class="redText">
-                  <td><b>Total</b></td>
-                  <td><b>${data.totalMarks[0].value}</b></td>
-                  <td><b>${data.totalMarks[0].obtainedMarks}</b></td>
-                </tr>
-              </tbody>
-            </table>
-    
-            <!-- Graphs Section -->
-            <div class="graphs">
-              <div class="graph-container-doughnut">
-    
-          
-          <div class="headingAndGraph">
-                <h4>
-                  Subjectwise Breakup of Full Marks
-                </h4>
-    
-    
-    
-              <div class="graph-container-pie">
-                <canvas id="fullMarksChart">
-                
-                </canvas>
-    
+            <div class="student-photo">PHOTO NOT AVAILABLE</div>
+          </div>
+
+          <!-- Marks Table -->
+          <table class="marks-table">
+            <thead>
+              <tr>
+                <th>Subject</th>
+                <th>Marks Obtained</th>
+                <th>Full Marks</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${tableRows}
+              <tr class="redText">
+                <td><b>Total</b></td>
+                <td><b>${data.totalMarks[0].value}</b></td>
+                <td><b>${data.totalMarks[0].obtainedMarks}</b></td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Graphs Section -->
+          <div class="graphs">
+            <div class="graph-container-doughnut">
+              <div class="headingAndGraph">
+                <h4>Subjectwise Breakup of Full Marks</h4>
+                <div class="graph-container-pie">
+                  <canvas id="fullMarksChart"> </canvas>
                 </div>
               </div>
               <div class="headingAndGraph">
-           <h4>
-             Subjectwise Breakup of Obtained Marks
-           </h4>
-              <div class="graph-container-pie">
-                <canvas id="obtainedMarksChart"></canvas>
+                <h4> Subjectwise Breakup of Obtained Marks</h4>
+                <div class="graph-container-pie">
+                  <canvas id="obtainedMarksChart"></canvas>
                 </div>
               </div>
             </div>
-    
+
             <div class="graph-container-bar">
-    
-               <div class="headingAndGraph">
-                <h4>
-                  Subjectwise Comparison
-                </h4>
-    
-    
-              <div class="graph-container">
-                <canvas id="comparisonChart"></canvas>
+              <div class="headingAndGraph">
+                <h4>Subjectwise Comparison</h4>
+
+                <div class="graph-container">
+                  <canvas id="comparisonChart"></canvas>
+                </div>
               </div>
+
+              <div class="headingAndGraph">
+                <h4>Subjectwise Rank</h4>
+                <div class="graph-container">
+                  <canvas id="rankChart"></canvas>
+                </div>
               </div>
-    
-                 <div class="headingAndGraph">
-                <h4>
-                  Subjectwise Rank
-                </h4>
-              <div class="graph-container">
-                <canvas id="rankChart"></canvas>
-              </div>
-              </div>
-    
-            </div>
-    
             </div>
           </div>
         </div>
-    
-        <!-- Social Media Information -->
-        <div class="social-media-info">
-            <div class="social-media-icons">
-              <div class="social-media-div">
-                
-                  <!-- <img src="https://via.placeholder.com/50x50" alt="Facebook" /> -->
-                  <span>
-                    <img src=${callIconBase64} alt="">
-                    
-                    +91 8126555222/333</span>
-              
-              </div>
-              <div class="social-media-div">
-                <span>
-                  
-                 <img src=${websiteIconBase64} alt=""> 
-                  www.scholarsden.in</span>
-              </div>
-              <div class="social-media-div social-media-div-last">
-                
-                
-                <img src=${facebookIconBase64} alt="">
-                <img src=${youtubeIconBase64} alt="">
-                <img src=${twitterIconBase64} alt="">
-                <img src=${socialIconBase64} alt="">
-                
-                <span>
-                  
-                  scholarsden</span>
-              </div>
-            </div>
+      </div>
+
+      <!-- Social Media Information -->
+      <div class="social-media-info">
+        <div class="social-media-icons">
+          <div class="social-media-div">
+            <!-- <img src="https://via.placeholder.com/50x50" alt="Facebook" /> -->
+            <span>
+              <img src="${callIconBase64}" alt="" />
+
+              +91 8126555222/333</span
+            >
           </div>
-            
-    
-    
-        <!-- Footer -->
-        <div class="footer">
+          <div class="social-media-div">
+            <span>
+              <img src="${websiteIconBase64}" alt="" />
+              www.scholarsden.in</span
+            >
+          </div>
+          <div class="social-media-div social-media-div-last">
+            <img src="${facebookIconBase64}" alt="" />
+            <img src="${youtubeIconBase64}" alt="" />
+            <img src="${twitterIconBase64}" alt="" />
+            <img src="${socialIconBase64}" alt="" />
+
+            <span> scholarsden</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer -->
+      <div class="footer">
         <div>
           BUILDING 1, 2 & 4: Near Qila, Kanth Road, Moradabad (UP) 244001<br />
           SD House (Corporate Office): Sai Mandir Road, Deen Dayal Nagar-I,
           Moradabad (UP) 244001
         </div>
+      </div>
+
+      <div class="secondPage">
+        <div class="secondPageLogo">
+          <img src="${scholarsDenBase64}" alt="Logo" />
+        </div>
+
+        <div class="secondPagetextContainer">
+        <p>
+          Dear, 
+          </p>
+          <span>
+          ${data.studentFirstName}
+          </span>
+          <div id="scholarshipMessage"></div>
+        </div>
+
+        <div class="secondPageFooter">
+          <img class="VTSirImage" src="${VTSirImage}" alt="Logo" />
+          <div class="footerSignature">
+          <img src=${VT_Sir_Signature} alt="Logo" />
+          <div>
+          <span >
+          <strong class="VTSirName">
+         Vivek Thakur (VT SIR) </strong> <br />
+        
+          IIT Kharagpur Alumnus <br />
+
+          Managing Director, Scholars Den <br />
+</span>
+
+
+          </div>
+          </div>
         </div>
       </div>
     </div>
     
-    
        <script>
+      
+
+
+ const scholarshipMessageElement = document.getElementById('scholarshipMessage');
+  
+    if (${scholarship} > 0 && ${scholarship} < 40) {
+scholarshipMessageElement.innerHTML = \`
+<p>
+  Your efforts have not gone unnoticed. Exams are just an experience for  
+  learning that will help you progress. Since you are not familiar with the  
+  nature of current competitive exams, give yourself a chance, and join Scholars  
+  Den. Here our experienced team will prepare you for the current competitive  
+  exams and provide an opportunity to bring out the talent hidden within you.  
+</p>
+<p>
+  After joining Scholars Den, you will see a positive change within yourself in  
+  no time. Other students have also witnessed significant growth in their  
+  confidence and abilities after joining Scholars Den.
+</p>
+<p>We will assist you in every possible way to fulfill your dreams.</p>
+<p>
+  आपके प्रयास बेकार नहीं गए। परीक्षा केवल सीखने का एक अनुभव है जो आपको आगे बढ़ने  
+  में मदद करेगा।
+</p>
+<p>
+  चूंकि आप वर्तमान की प्रतियोगी परीक्षाओं की प्रकृति से परिचित नहीं हैं इसलिए  
+  स्वयं को एक अवसर दें और स्कॉलर्स डेन आयें। यहाँ हमारी अनुभवी टीम आपको वर्तमान  
+  प्रतियोगी परीक्षाओं के अनुरुप तैयार करेगी जिससे आपके भीतर छुपी प्रतिभा को बाहर  
+  आने का मौका मिलेगा।
+</p>
+<p>
+  स्कॉलर्स डेन में शामिल होने के बाद आप कुछ ही समय में अपने अंदर एक सकारात्मक  
+  बदलाव देखेंगे। अन्य विद्याथियों ने भी स्कॉलर्स डेन आने के बाद अपने आत्मविश्वास  
+  और क्षमताओं में उल्लेखनीय वृद्धि देखी है।
+</p>
+<p>हम आपके सपनों को पूरा करने में आपकी हर संभव मदद करेंगे।</p>
+<p>With best wishes,</p>
+\`; } else if(${scholarship} >= 40 && ${scholarship} < 60)
+scholarshipMessageElement.innerHTML = \`
+<p>
+  Your efforts are commendable. If you are not yet familiar with the nature of  
+  competitive exams, do not lose heart. We're ready to support you on this journey.
+</p>
+<p>
+  Our experienced team will prepare you for the current competitive exams and  
+  help unlock the potential within you.
+</p>
+<p>
+  In Scholars Den, you will witness positive changes within yourself in no  
+  just like many other students have experienced.
+</p>
+<p>We will assist you in every possible way to fulfill your dreams.</p>
+<p>
+  आपके प्रयास सराहनीय हैं। यदि आप अभी तक प्रतियोगी परीक्षाओं की प्रकृति से  
+  परिचित नहीं हैं, तो हार न मानें। हम इस यात्रा में आपका साथ देने के लिए तैयार  
+  है।
+</p>
+<p>
+  हमारी अनुभवी टीम आपको वर्तमान प्रतियोगी परीक्षाओं के अनुरूप तैयार करेगी और  
+  आपके अंदर छुपी प्रतिभा को निखारने में मदद करेगी।
+</p>
+<p>
+  स्कॉलर्स डेन में आप कुछ ही समय में अपने अंदर सकारात्मक बदलाव देखेंगे, जैसा कि  
+  कई अन्य छात्रों ने अनुभव किया है।
+</p>
+<p>हम आपके सपनों को पूरा करने में आपकी हर संभव मदद करेंगे।</p>
+<p>With best wishes,</p>
+\`; else if(${scholarship} >= 60 && ${scholarship} < 80){
+scholarshipMessageElement.innerHTML = \`
+<p>
+  Your hard work and efforts in the exam are clearly visible. Keep moving  
+  forward - we are always here to provide the right guidance and assistance.
+</p>
+<p>
+  Our experienced team will familiarize you with the nature of current  
+  competitive exams and help you progress on the path to success.  
+</p>
+<p>
+  Many students studying at Scholars Den have witnessed significant growth in  
+  their confidence and abilities after joining. You can be a part of those  
+  students and write your own success story.
+</p>
+<p>
+  परीक्षा में आपकी मेहनत और प्रयास साफ़ झलक रहे हैं। आगे बढ़ते रहें - हम आपको  
+  उचित मार्गदर्शन व सहायता प्रदान करने के लिए हमेशा यहाँ हैं।
+</p>
+<p>
+  हमारी अनुभवी टीम आपको वर्तमान प्रतियोगी परीक्षाओं की प्रकृति से परिचित कराएगी  
+  और आपको सफलता की राह पर आगे बढ़ने में मदद करेगी।
+</p>
+<p>
+  स्कॉलर्स डेन में पढ़ने वाले कई विद्यार्थियों ने भी यहाँ आने के बाद अपने  
+  आत्मविश्वास और क्षमताओं में उल्लेखनीय वृद्धि देखी है। आप भी उन विद्यार्थियों  
+  में शामिल हो सकते हैं और अपनी सफलता की कहानी खुद लिख सकते हैं।
+</p>
+<p>With best wishes,</p>
+\`; 
+}
+else if (${scholarship} >= 80 && ${scholarship} < 90){
+scholarshipMessageElement.innerHTML = \`
+
+<p>Congratulations on achieving excellent marks in SDAT.</p>
+<p>
+  You possess sufficient talent and skills, and there is much more which needs  
+  to be showcased to the world.
+</p>
+<p>
+  We are always with you to provide the right direction. Our experienced team  
+  will guide you for the current competitive exams and help further polish your  
+  abilities.
+</p>
+<p>SDAT में उत्कृष्ट अंक प्राप्त करने के लिए आपको हार्दिक शुभकामनाएँ।</p>
+<p>
+  आपके पास पर्याप्त प्रतिभा व कौशल है, जिसका संसार में प्रदर्शन होना अभी बाकी
+  है।
+</p>
+<p>
+  आपको उचित दिशा प्रदान करने के लिए हम हमेशा आपके साथ हैं। हमारी अनुभवी टीम  
+  वर्तमान प्रतियोगी परीक्षाओं के लिए आपका मार्गदर्शन करेगी और आपकी प्रतिभा को और  
+  अधिक निखारने में मदद करेगी।
+</p>
+<p>With best wishes,</p>
+\`; } 
+  else { 
+    scholarshipMessageElement.innerHTML = \`
+
+<p>
+  Congratulations on achieving excellent marks in SDAT. Best wishes to you. You  
+  are on the right path.
+</p>
+<p>
+  Maintain this level of commitment, and soon you will see your dreams come  
+  true.
+</p>
+<p>
+  We are with you in every need. Our experienced team will guide you for the  
+  current competitive exams and help enhance your abilities even further.
+</p>
+<p>
+  SDAT में उत्कृष्ट अंक प्राप्त करने के लिए आपको हार्दिक शुभकामनाएँ। आप सही दिशा
+  में हैं।
+</p>
+<p>
+  प्रतिबद्धता के इस स्तर को बनाए रखें, बहुत जल्द ही आप अपने सपनों को साकार होता
+  हुआ पाएँगे।
+</p>
+<p>
+  आपकी प्रत्येक आवश्यकता में हम आपके साथ हैं। हमारी अनुभवी टीम आपको वर्तमान  
+  प्रतियोगी परीक्षाओं के लिए आपका मार्गदर्शन करेगी और आपकी प्रतिभा को और अधिक  
+  निखारने में मदद करेगी।
+</p>
+<p>With best wishes,</p>
+\`; }
+
     
        const allSubjectName = ${JSON.stringify(allSubjectName)};
        const allSubjectMarks = ${JSON.stringify(allSubjectMarks)};
@@ -621,6 +932,7 @@ const generateReportCardPDF = async (data, pdfFilePath) => {
           position: "right",
           labels: {
             boxWidth: 12,
+            padding: 10,
           },
         },
       },
@@ -836,9 +1148,6 @@ const uploadToCloudinary = async (pdfFilePath, rollNumber) => {
 
 // Function to process CSV data and generate report cards
 const processCSVAndGenerateReportCards = async (csvFilePath) => {
-
-
-  console.log("Processing CSV and generating report cards...");
   const students = [];
 
   // Read CSV file and parse data
@@ -852,22 +1161,52 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
       for (const student of students) {
         const pdfFilePath = `./reportCards/report_card_${student["Roll No"]}.pdf`;
-
-
-
         const allKeys = Object.keys(student);
-
-
         // Prepare student data for report card
+        // console.log("Rank", student['Rank']);
+
+        // const studentData = {
+        //   'Rank': '1',
+        //   'Class': '8th',
+        //   'Roll No': '202508004',
+        //   'Candidate Name': 'Sharanya Kulkarni',
+        //   'Father Name': 'Mr. Guru Raj Kulkarni',
+        //   'Phy(10)': '5',
+        //   'Phy Average': '5',
+        //   'Phy_Highest Score': '7',
+        //   'Phy_Subjectwise_Rank': '3',
+        //   'Chem(10)': '6',
+        //   'Chem Average': '5',
+        //   'Chem_Highest Score': '6',
+        //   'Chem_Subjectwise_Rank': '1',
+        //   'Bio(10)': '6',
+        //   'Bio Average': '4',
+        //   'Bio_Highest Score': '6',
+        //   'Bio_Subjectwise_Rank': '1',
+        //   'Math(15)': '13',
+        //   'Math Average': '9',
+        //   'Math_Highest Score': '13',
+        //   'Math_Subjectwise_Rank': '1',
+        //   'SST(15)': '11',
+        //   'SST Average': '8',
+        //   'SST_Highest Score': '13',
+        //   'SST_Subjectwise_Rank': '2',
+        //   'MAT(50)': '29',
+        //   'MAT Average': '23',
+        //   'MAT_Highest Score': '29',
+        //   'MAT_Subjectwise_Rank': '1',
+        //   'Total(150)': '70'
+        // };
+
         // Function to extract names and numbers
-        function extractData(student) {
+        function extractData(studentData) {
           let names = [];
           let numbers = [];
           let totalMarks = [];
 
           // Iterate through the data object
-          for (let key in student) {
-            let value = student[key];
+          for (let key in studentData) {
+            let value = studentData[key];
 
             // Check if the key contains a number in parentheses (indicating marks/subjects)
             const match = key.match(/\((\d+)\)/);
@@ -891,9 +1230,7 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
         // Extracted studentData
         const { names, numbers, totalMarks } = await extractData(student);
 
-
-
-
+        
 
         let checkMarksData = await numbers.map((item, index) => {
 
@@ -908,12 +1245,9 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
         })
 
 
-
-
-
         let data = {
-          studentFirstName: student['Candidate Name']?.split(" ")[0],
-          studentLastName: student['Candidate Name'].split(" ").length > 1 ? student['Candidate Name']?.split(" ")[1] : "" ,
+          studentFirstName: student['Candidate Name'].split(" ")[0],
+          studentLastName: student['Candidate Name'].split(" ")[1],
           Registration: student['Roll No'],
           Rank: student['Rank'],
           Scholarship: student.Scholarship,
@@ -939,17 +1273,19 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
 
 
+
+
+
+
+
+
+
+
         try {
 
 
-          console.log(`Processing report card for pdfFilePath`, pdfFilePath);
-
           await generateReportCardPDF(data, pdfFilePath);
-
-
           console.log(`Generated PDF check pdfFilePath`, pdfFilePath);
-        
-
           // Ensure that the file is valid before uploading
           if (isFileValid(pdfFilePath)) {
             try {
@@ -957,6 +1293,8 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 
               const url = await uploadToCloudinary(pdfFilePath, student["Roll No"]);
               console.log("Report card uploaded to Cloudinary:", url);
+
+
 
 
               console.log("Student role number:", student["Roll No"]);
@@ -974,20 +1312,13 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
             }
           } else {
             console.log(`Generated PDF for ${student["Roll No"]} is empty or invalid.`);
-           }
+          }
 
           // Optionally, delete the local file after upload
         } catch (error) {
           console.error(`Error processing report card for Roll Number: `, error);
         }
-        // finally {
-        //   if (fs.existsSync(pdfFilePath)) {
-        //     console.log(`Deleting ${pdfFilePath}...`);
-
-        //     fs.unlinkSync(pdfFilePath);
-        //   }
-
-        // }
+   
       }
     })
     .on("error", (error) => {
@@ -996,10 +1327,12 @@ const processCSVAndGenerateReportCards = async (csvFilePath) => {
 };
 
 // Run the script
-// const csvFilePath = "./students.csv"; // Path to your CSV file
-// const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
+const csvFilePath = "./SDATResult.csv"; // Path to your CSV file
 // const csvFilePath = "./Jatin.csv"; // Path to your CSV file
 // processCSVAndGenerateReportCards(csvFilePath);
+
+
+// module.export = processCSVAndGenerateReportCards;
 
 
 module.exports = processCSVAndGenerateReportCards;
